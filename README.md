@@ -7,7 +7,7 @@
 
 ## 2 步骤
 ### 2.1 实现步进电机的PWM控制（参考江科协代码）
-- [ ] 步进电机的PWM驱动函数能输入PWM的值作为参数
+- [x] 步进电机的PWM驱动函数能输入PWM的值作为参数
 ```
 #include "stm32f10x.h"                  // Device header
 
@@ -54,10 +54,8 @@ void PWM_PrescalerConfig(uint16_t Prescaler) //设置频率
 }
 ```
 
-### 2.2 实现DMA+AD转换功能来进行测温（参考江科协代码）
-- [x] 电位计DMA+AD转换驱动函数，通过电压转换能计算出热敏电阻的温度值。
-- [x] 热敏电阻的计算公式：T=f(Voltage, Belta)
-- [x] DMA
+### 2.2 实现固定PWM输入，转动指定角度
+- [x] 
 
 ### 2.3 串口通讯（参考江科协代码）
 - [x] 串口输出热敏电阻的温度值，连接上位机图形化显示 
@@ -107,12 +105,17 @@ float PID(float Rps, float Target)
 ## 4 接线框图
 - [ ] 电机驱动TMC2209（RX，TX，CLK可以不接）注意：EN脚一定要接低电平，悬空电机不转，切记
 - [ ] 电容100uf，接在电机电源上
-- [ ] 开关电源12V
-- [ ] 步进电机PKP243MD15A-R2FL, 编码器分辨率400P/R
+- [ ] 开关电源12V（5V带不起来）
+- [ ] 步进电机PKP243MD15A-R2FL, 编码器分辨率400P/R，基本步距角0.9°
 
 ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/f446d52d-bf39-4ad2-bb1f-805620771ffd)
 ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/370dd96f-9677-4c7b-b5ef-e6f2c3c48022)
 ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/f48e4e6a-3e98-4126-8cd8-86b325d3d6dd)
+![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/df2eb117-ac03-457a-b58a-351279d90b28)
+![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/565eb096-2b27-4e59-a8e0-85043c7a0f56)
+![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/904a075d-63a5-4789-91b6-4eb49f1b498e)
+![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/0081eeea-2529-4660-a29b-c055695b40a0)
+
 
 ## 5 参考资料
 [A4988驱动NEMA步进电机(42步进电机)](http://www.taichi-maker.com/homepage/reference-index/motor-reference-index/arduino-a4988-nema-stepper-motor/)
