@@ -9,19 +9,50 @@
 ### 2.1 实现步进电机的PWM控制（参考江科协代码）
 - [ ] 步进电机的PWM驱动函数能输入PWM的值作为参数
 ```
-Duty = 5;	
-Heater_SetDutyCycle(Duty);
+#include "stm32f10x.h"                  // Device header
+
+void PWM_Init(void)
+{
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
+	
+	GPIO_InitTypeDef GPIO_InitStructure;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	
+	TIM_InternalClockConfig(TIM2);
+	
+	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStruct;
+	TIM_TimeBaseInitStruct.TIM_ClockDivision = TIM_CKD_DIV1;
+	TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_Up;
+	TIM_TimeBaseInitStruct.TIM_Period = 100 - 1;      //ARR
+	TIM_TimeBaseInitStruct.TIM_Prescaler = 7200 - 1;    //PSC
+	TIM_TimeBaseInitStruct.TIM_RepetitionCounter = 0;
+	TIM_TimeBaseInit(TIM2,&TIM_TimeBaseInitStruct);
+	
+	TIM_OCInitTypeDef TIM_OCInitStructure;
+	TIM_OCStructInit(&TIM_OCInitStructure);
+	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
+	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+	TIM_OCInitStructure.TIM_Pulse = 0;      //CCR
+	TIM_OC3Init(TIM2,&TIM_OCInitStructure);
+	
+	TIM_Cmd(TIM2, ENABLE);
+}
+
+void PWM_SetCompare3(uint16_t Compare) //设置占空比
+{
+	TIM_SetCompare3(TIM2, Compare);
+}
+
+void PWM_PrescalerConfig(uint16_t Prescaler) //设置频率
+{
+	TIM_PrescalerConfig(TIM2, Prescaler, TIM_PSCReloadMode_Update);
+}
 ```
-在固定的DutyCycle=5的情况下，温度波动很大
-![image](https://github.com/Kevinyym/Heater-PID-Control/assets/101639215/e71c1803-356e-4b28-bf81-df0d8f8b34d6)
-
-在增加104电容后，温度基本稳定
-![image](https://github.com/Kevinyym/Heater-PID-Control/assets/101639215/96442e4e-d27a-4093-87d0-c0750630cef2)
-
-DutyCycle=20
-![image](https://github.com/Kevinyym/Heater-PID-Control/assets/101639215/5b14f8a0-a073-415b-b98d-7805b68e2fea)
-
-DutyCycle=50, 100, 确认温度极限
 
 ### 2.2 实现DMA+AD转换功能来进行测温（参考江科协代码）
 - [x] 电位计DMA+AD转换驱动函数，通过电压转换能计算出热敏电阻的温度值。
@@ -74,11 +105,18 @@ float PID(float Rps, float Target)
 	(Timer)	    TIM4    通用定时器	
 ```
 ## 4 接线框图
-- [ ] 电机驱动TB6612(确认加热片的额定DC和功率，已有的TB6612是否能用？)
-- [ ] 加热棒（额定电压DC 24V, 额定功率65W。为了简化电路，直接从ST-Link取电5V。验证电流：R=U^2/P=24^2/65=8.86 ohm，那么在5V下 I=U/R=5/8.86=0.8A，小于电机驱动的额定1.2A)
-- [ ] 热敏电阻（规格NTC 100k, B3950）
+- [ ] 电机驱动TMC2209（RX，TX，CLK可以不接）注意：EN脚一定要接低电平，悬空电机不转，切记
+- [ ] 电容100uf，接在电机电源上
+- [ ] 开关电源12V
+- [ ] 步进电机PKP243MD15A-R2FL, 编码器分辨率400P/R
 
-![image](https://github.com/Kevinyym/Heater-PID-Control/assets/101639215/5c6804c8-7df8-4b05-86c6-cd1f336e669f)
-- [ ] 此处电容可以不接
-- [ ] ![image](https://github.com/Kevinyym/Heater-PID-Control/assets/101639215/33b318a5-9fe2-4084-ae33-6b1ef5e0fe64)
+![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/f446d52d-bf39-4ad2-bb1f-805620771ffd)
+![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/370dd96f-9677-4c7b-b5ef-e6f2c3c48022)
+![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/f48e4e6a-3e98-4126-8cd8-86b325d3d6dd)
+
+## 5 参考资料
+[A4988驱动NEMA步进电机(42步进电机)](http://www.taichi-maker.com/homepage/reference-index/motor-reference-index/arduino-a4988-nema-stepper-motor/)
+[PKP243MD15A-R2FL,高分辨率型 带编码器（双极性 4根导线）](https://www.orientalmotor.com.cn/products/st/list/detail/?product_name=PKP243MD15A-R2FL&brand_tbl_code=ST)
+
+
 
