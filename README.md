@@ -56,8 +56,94 @@ void PWM_PrescalerConfig(uint16_t Prescaler) //设置频率
 
 ### 2.2 实现固定PWM输入，转动指定角度
 - [x] MS1，MS2 低电平，1/8 microstep
-- [x] 基本步距角0.9°，360/0.9=400 P/R
+- [x] 基本步距角0.9°，360/0.9=400 P/R，所以一圈就是3200 plus （400*8=3200）
+```
+//PWM输出
+/***定时器1主模式***/
+void TIM1_config(u32 Cycle)
+{
+    GPIO_InitTypeDef GPIO_InitStructure;
+    TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+    TIM_OCInitTypeDef  TIM_OCInitStructure;
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA|RCC_APB2Periph_TIM1 , ENABLE); 
 
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;                   //TIM1_CH4 PA11
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;             //复用推挽输出
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+    TIM_TimeBaseStructure.TIM_Period = Cycle-1;                                                   
+    TIM_TimeBaseStructure.TIM_Prescaler =71;                    //设置用来作为TIMx时钟频率除数的预分频值                                                     
+    TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;     //设置时钟分割：TDTS= Tck_tim            
+    TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up; //TIM向上计数模式
+    TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;            //重复计数，一定要=0！！！
+    TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);                                       
+
+    TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;          //选择定时器模式：TIM脉冲宽度调制模式1       
+    TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; //比较输出使能
+    TIM_OCInitStructure.TIM_Pulse = Cycle/2-1;                    //设置待装入捕获寄存器的脉冲值                                   
+    TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;      //输出极性       
+
+    TIM_OC4Init(TIM1, &TIM_OCInitStructure);                                                         
+
+    TIM_SelectMasterSlaveMode(TIM1, TIM_MasterSlaveMode_Enable);
+    TIM_SelectOutputTrigger(TIM1, TIM_TRGOSource_Update); 
+
+    TIM_OC4PreloadConfig(TIM1, TIM_OCPreload_Enable);                              
+    TIM_ARRPreloadConfig(TIM1, ENABLE);                                                          
+}
+/***定时器2从模式***/
+void TIM2_config(u32 PulseNum)
+{
+    TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+    NVIC_InitTypeDef NVIC_InitStructure; 
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+
+    TIM_TimeBaseStructure.TIM_Period = PulseNum-1;   
+    TIM_TimeBaseStructure.TIM_Prescaler =0;    
+    TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;     
+    TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  
+    TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);  
+
+    TIM_SelectInputTrigger(TIM2, TIM_TS_ITR0);
+    //TIM_InternalClockConfig(TIM2);
+    TIM2->SMCR|=0x07;                                  //设置从模式寄存器 
+    //TIM_ITRxExternalClockConfig(TIM2, TIM_TS_ITR0);
+
+    //TIM_ARRPreloadConfig(TIM2, ENABLE);         
+    TIM_ITConfig(TIM2,TIM_IT_Update,DISABLE);
+
+   // NVIC_PriorityGroupConfig(NVIC_PriorityGroup_3);
+    NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;        
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;     
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE; 
+    NVIC_Init(&NVIC_InitStructure);
+}
+void Pulse_output(u32 Cycle,u32 PulseNum)
+{
+    TIM2_config(PulseNum);
+    TIM_Cmd(TIM2, ENABLE);
+    TIM_ClearITPendingBit(TIM2,TIM_IT_Update);
+    TIM_ITConfig(TIM2,TIM_IT_Update,ENABLE);
+    TIM1_config(Cycle);
+    
+    TIM_Cmd(TIM1, ENABLE);
+    TIM_CtrlPWMOutputs(TIM1, ENABLE);   //高级定时器一定要加上，主输出使能
+}
+
+void TIM2_IRQHandler(void) 
+{ 
+    if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET)     // TIM_IT_CC1
+    { 
+        TIM_ClearITPendingBit(TIM2, TIM_IT_Update); // 清除中断标志位 
+        TIM_CtrlPWMOutputs(TIM1, DISABLE);  //主输出使能
+        TIM_Cmd(TIM1, DISABLE); // 关闭定时器 
+        TIM_Cmd(TIM2, DISABLE); // 关闭定时器 
+        TIM_ITConfig(TIM2, TIM_IT_Update, DISABLE);   
+    } 
+}
+```
 ### 2.3 串口通讯（参考江科协代码）
 - [x] 串口输出热敏电阻的温度值，连接上位机图形化显示 
 ```Serial_Printf("Rps: %.2f\n", Rps); //串口输出转速，换行打印```
@@ -125,4 +211,4 @@ float PID(float Rps, float Target)
 - [VORON/klipper 如何使用TMC2209以及使用无传感器归零功能 (一) 硬件介绍与连接](https://blog.csdn.net/weixin_43234123/article/details/123128094)
 - [嵌入式STM32学习笔记（5）——定时器主从模式，精确输出PWM脉冲数量](https://blog.csdn.net/abcvincent/article/details/95250994?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-1-95250994-blog-96273988.235^v38^pc_relevant_sort&spm=1001.2101.3001.4242.2&utm_relevant_index=4)
 - [各种方案，精确输出可控脉冲个数，尽量可控周期或占空比（脉冲 dma](http://www.openedv.com/forum.php?mod=viewthread&tid=297375)
-- [stm32定时器方式精确输出指定脉冲个数](https://blog.csdn.net/weixin_49297378/article/details/130580001?spm=1001.2101.3001.6650.2&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EYuanLiJiHua%7EPosition-2-130580001-blog-96273988.235%5Ev38%5Epc_relevant_sort&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EYuanLiJiHua%7EPosition-2-130580001-blog-96273988.235%5Ev38%5Epc_relevant_sort&utm_relevant_index=5)
+- [STM32主从模式 精确脉冲数PWM （已实现）](https://blog.csdn.net/leonsust/article/details/96273988)
