@@ -55,7 +55,8 @@ void PWM_PrescalerConfig(uint16_t Prescaler) //设置频率
 ```
 
 ### 2.2 实现固定PWM输入，转动指定角度
-- [x] 
+- [x] MS1，MS2 低电平，1/8 microstep
+- [x] 基本步距角0.9°，360/0.9=400 P/R
 
 ### 2.3 串口通讯（参考江科协代码）
 - [x] 串口输出热敏电阻的温度值，连接上位机图形化显示 
@@ -109,6 +110,7 @@ float PID(float Rps, float Target)
 - [ ] 步进电机PKP243MD15A-R2FL, 编码器分辨率400P/R，基本步距角0.9°
 
 ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/f446d52d-bf39-4ad2-bb1f-805620771ffd)
+![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/8bf0b0a4-6273-4ea5-9191-296d6575488c)
 ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/370dd96f-9677-4c7b-b5ef-e6f2c3c48022)
 ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/f48e4e6a-3e98-4126-8cd8-86b325d3d6dd)
 ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/df2eb117-ac03-457a-b58a-351279d90b28)
@@ -118,8 +120,9 @@ float PID(float Rps, float Target)
 
 
 ## 5 参考资料
-[A4988驱动NEMA步进电机(42步进电机)](http://www.taichi-maker.com/homepage/reference-index/motor-reference-index/arduino-a4988-nema-stepper-motor/)
-[PKP243MD15A-R2FL,高分辨率型 带编码器（双极性 4根导线）](https://www.orientalmotor.com.cn/products/st/list/detail/?product_name=PKP243MD15A-R2FL&brand_tbl_code=ST)
-
-
-
+- [A4988驱动NEMA步进电机(42步进电机)](http://www.taichi-maker.com/homepage/reference-index/motor-reference-index/arduino-a4988-nema-stepper-motor/)
+- [PKP243MD15A-R2FL,高分辨率型 带编码器（双极性 4根导线）](https://www.orientalmotor.com.cn/products/st/list/detail/?product_name=PKP243MD15A-R2FL&brand_tbl_code=ST)
+- [VORON/klipper 如何使用TMC2209以及使用无传感器归零功能 (一) 硬件介绍与连接](https://blog.csdn.net/weixin_43234123/article/details/123128094)
+- [嵌入式STM32学习笔记（5）——定时器主从模式，精确输出PWM脉冲数量](https://blog.csdn.net/abcvincent/article/details/95250994?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-1-95250994-blog-96273988.235^v38^pc_relevant_sort&spm=1001.2101.3001.4242.2&utm_relevant_index=4)
+- [各种方案，精确输出可控脉冲个数，尽量可控周期或占空比（脉冲 dma](http://www.openedv.com/forum.php?mod=viewthread&tid=297375)
+- [stm32定时器方式精确输出指定脉冲个数](https://blog.csdn.net/weixin_49297378/article/details/130580001?spm=1001.2101.3001.6650.2&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EYuanLiJiHua%7EPosition-2-130580001-blog-96273988.235%5Ev38%5Epc_relevant_sort&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EYuanLiJiHua%7EPosition-2-130580001-blog-96273988.235%5Ev38%5Epc_relevant_sort&utm_relevant_index=5)
