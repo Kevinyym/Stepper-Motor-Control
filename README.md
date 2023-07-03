@@ -1,8 +1,11 @@
 # Stepper-Motor-Control
 
 ## 1 目标
-- [ ] 实现PWM控制步进电机
+- [x] 实现PWM控制步进电机
+- [x] 实现输出精确脉冲数（定时器主从模式）
+- [ ] 实现步进电机梯形加减速控制
 - [ ] 实现编码器反馈速度
+- [ ] 实现串口上位机显示速度
 - [ ] 实现限位开关(home sensor)
 
 ## 2 步骤
@@ -55,8 +58,9 @@ void PWM_PrescalerConfig(uint16_t Prescaler) //设置频率
 ```
 
 ### 2.2 实现固定PWM输入，转动指定角度
+- [x] 将2.1中的TIM2单独输出PWM，改成TIM1和TIM2进行定时器主从模式来精确输出脉冲数
 - [x] MS1，MS2 低电平，1/8 microstep
-- [x] 基本步距角0.9°，360/0.9=400 P/R，所以一圈就是3200 plus （400*8=3200）
+- [x] 基本步距角0.9°，360/0.9=400 P/R，所以一圈就是3200 plus （400*8=3200 plus）
 ```
 //PWM输出
 /***定时器1主模式***/
@@ -144,50 +148,30 @@ void TIM2_IRQHandler(void)
     } 
 }
 ```
-### 2.3 串口通讯（参考江科协代码）
-- [x] 串口输出热敏电阻的温度值，连接上位机图形化显示 
-```Serial_Printf("Rps: %.2f\n", Rps); //串口输出转速，换行打印```
-- [ ] 待完成功能：Kp, Ki, Kd参数通过串口输入，而不用每次更改都编译和下载一遍
+### 2.3 实现步进电机梯形加减速控制
 
-### 2.4 PID控制温度
-- [x] 简单粗暴的控制方式，不能让温度稳定在 xxx 度
+
+### 2.4 实现编码器反馈速度
+
+
+### 2.5 串口通讯（参考江科协代码）
+- [x] 串口输出转速，连接上位机图形化显示 
+```Serial_Printf("Rps: %.2f\n", Rps); //串口输出转速，换行打印```
+
+### 2.4 实现限位开关(home sensor)
+- [x] xxx
 ```
 if (Temp > 41) Speed--;
 if (Temp < 39) Speed++;
 ```
-![image](https://github.com/Kevinyym/Heater-PID-Control/assets/101639215/d334016d-43eb-46fe-8963-eefc913e0f4d)
-
-- [x] 热敏电阻PID控制加热片温度
-```
-float Err=0, LastErr=0, NextErr=0, Add=0, Kp=10, Ki=0.6, Kd=0.05, POut=0, IOut=0, DOut;
-int8_t TotalOut=0;
-
-/**
-  * @brief  PID控制温度
-  * @param  Rps: 将当前的目标值传入函数
-  * @param  Target: 将当前的测量值传入函数
-  * @retval 返回执行量
-  */
-float PID(float Rps, float Target)
-{
-	Err = Target - Rps; //计算实际值与目标值的偏差值
-	POut = Kp * Err; //计算PID的比例值P的输出值
-	IOut += Ki * Err; //计算PID的积分值I的输出值
-	DOut = Err - LastErr; //计算PID的微分值D的输出值
-	TotalOut = (int8_t)(POut + IOut + DOut); //PID值的和
-	LastErr = Err;
-	return TotalOut;
-}
-```
-![image](https://github.com/Kevinyym/Heater-PID-Control/assets/101639215/5ffb76e7-1444-4fa3-ac33-8ee9707dbb5d)
 
 ## 3 定时器表资源表：STM32F103C8T6定时器资源：TIM1,TIM2,TIM3,TIM4
 ```	
-	*功能*	  *定时器*	 *类型*
-	闲置	   TIM1	   高级定时器
-	PWM	    TIM2    通用定时器	
-	(Encoder)   TIM3    通用定时器	
-	(Timer)	    TIM4    通用定时器	
+	*功能*	  *定时器*	 *类型* 		*备注*
+	PWM	   TIM1	   	高级定时器	步进电机控制
+	脉冲计数	   TIM2    	通用定时器	输出精确脉冲数
+	Encoder    TIM3    	通用定时器	编码器脉冲计数
+	Timer	    TIM4    	通用定时器	监控按键
 ```
 ## 4 接线框图
 - [ ] 电机驱动TMC2209（RX，TX，CLK可以不接）注意：EN脚一定要接低电平，悬空电机不转，切记
