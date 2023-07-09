@@ -149,6 +149,50 @@ void TIM2_IRQHandler(void)
 }
 ```
 ### 2.3 实现步进电机梯形加减速控制
+- [x] S型曲线加减速, [链接](https://www.cnblogs.com/Tuple-Joe/p/13533324.html)
+- [x] Sigmoid函数是一个在生物学中常见的S型函数，也称为S型生长曲线。Sigmoid函数也叫Logistic函数，取值范围为(0,1)，它可以将一个实数映射到(0,1)的区间，可以用来做二分类。该S型函数有以下优缺点：优点是平滑，而缺点则是计算量大。
+- [x] ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/7bded38b-2635-4ac6-97f8-78790b27f68d)
+- [x] ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/616e7baf-1cd0-493d-9824-fdad5f3b4896)
+- [x] 在电机加减速控制上，电机频率越大，电机速度越快。因而，可以通过公式法求出每个加减速点的频率值，进而通过电机频率求出具体的脉冲周期，最后在间隔相同的时间内改变脉冲相关参数（分频、周期、占空比）即可达到加减速的效果。一般情况下，如步进电机、伺服电机等，分频(71)与占空比(50%)通常固定数值即可，这样在加减速过程仅需改变输出周期值即可。
+```
+#define Len 20 //宏定义S曲线的变速脉冲点
+float Fre[Len];
+u32 Period[Len]; 
+void Calculate_S_Curve(float StartFre, float EndFre, float Flexible)
+{
+	u32 TIM_CLK = 72000000;
+	u8 TIM_FRESCALER = 71;
+    float melo;
+
+    for(int i = 0; i < Len; i ++)
+    {
+        melo = Flexible * (i-Len/2.0) / (Len/2.0);
+        Fre[i] = StartFre + (EndFre - StartFre) / (1 + expf(-melo));
+        Period[i] = (u32)(TIM_CLK / TIM_FRESCALER / Fre[i]);       // TIM_CLK 定时器时钟   TIM_FRESCALER 定时器分频
+	}
+}
+```
+- [x] 同时，不同频率脉冲输出时也需要注意脉冲的连续性（即我们需要在当前脉冲完全输出之后才能改变电机频率），否则电机加减速过程就会出现丢步现象，在脉冲数严格要求的情况下造成累积误差。main函数中代码如下：先计算出脉冲频率变更点，然后for循环调用频率数组，while循环检查中断标志，确保在当前脉冲完全输出之后才能改变电机频率
+```
+Calculate_S_Curve(1000, 4000, 3); //公式计算S曲线
+for (int i=0; i<Len; i++)
+{
+	Pulse_output(Period[i],80); //变速脉冲点的ARR每固定脉冲数后改变
+	while (IRQ_Flag == 0)
+		{
+			OLED_ShowNum(4,5,i,2);
+			OLED_ShowNum(4,9,Fre[i],5);
+		}
+	IRQ_Flag = 0;
+}
+Pulse_output(Period[(Len-1)],3200*3);
+```
+- [x] Calculate_S_Curve函数，用Sublime Text 输出具体脉冲频率值后，导入execel，如下
+- [x] ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/41f47180-1b36-46fd-8fb6-8503ee1ad48b)
+- [x] 用Freq单独做表，如下变化
+- [x] ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/9552713c-af0b-483d-ad2c-01b2ac0d8034)
+- [x] 用Time-Freq做表，如下， Time是Freq的倒数，每个频率输出80个脉冲，所以Time*80
+- [x] ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/d6de82a0-25b8-4893-ba42-06480298c9ff)
 
 
 ### 2.4 实现编码器反馈速度
