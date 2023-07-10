@@ -193,11 +193,11 @@ Pulse_output(Period[(Len-1)],3200*3);
 - [x] ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/9552713c-af0b-483d-ad2c-01b2ac0d8034)
 - [x] 用Time-Freq做表，如下， Time是Freq的倒数，每个频率输出80个脉冲，所以Time*80
 - [x] ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/d6de82a0-25b8-4893-ba42-06480298c9ff)
-
+- [ ] 遗留问题：加速过程电机发生低频振动。可能解决方案：从现有8细分改成更大的细分，比如64
 
 ### 2.4 实现编码器反馈速度
-
-
+- [x] 
+- [ ] 
 ### 2.5 串口通讯（参考江科协代码）
 - [x] 串口输出转速，连接上位机图形化显示 
 ```Serial_Printf("Rps: %.2f\n", Rps); //串口输出转速，换行打印```
@@ -221,7 +221,7 @@ if (Temp < 39) Speed++;
 - [ ] 电机驱动TMC2209（RX，TX，CLK可以不接）注意：EN脚一定要接低电平，悬空电机不转，切记
 - [ ] 电容100uf，接在电机电源上
 - [ ] 开关电源12V（5V带不起来）
-- [ ] 步进电机PKP243MD15A-R2FL, 编码器分辨率400P/R，基本步距角0.9°
+- [ ] 步进电机PKP243MD15A-R2FL, 编码器分辨率400P/R，基本步距角0.9°. 接头Pin#：1248，分别对应GND/A+/B+/VCC（DC5V），从ST-Link直接取5V和GND），编码器输出AB相接在PA6和PA7两个GPIO口
 
 ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/f446d52d-bf39-4ad2-bb1f-805620771ffd)
 ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/8bf0b0a4-6273-4ea5-9191-296d6575488c)
@@ -231,6 +231,7 @@ if (Temp < 39) Speed++;
 ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/565eb096-2b27-4e59-a8e0-85043c7a0f56)
 ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/904a075d-63a5-4789-91b6-4eb49f1b498e)
 ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/0081eeea-2529-4660-a29b-c055695b40a0)
+![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/b9390a54-9276-4e4f-9f5f-94b93f9851bc)
 
 
 ## 5 参考资料
