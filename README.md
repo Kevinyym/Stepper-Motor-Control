@@ -196,8 +196,52 @@ Pulse_output(Period[(Len-1)],3200*3);
 - [ ] 遗留问题：加速过程电机发生低频振动。可能解决方案：从现有8细分改成更大的细分，比如64
 
 ### 2.4 实现编码器反馈速度
-- [x] 
-- [ ] 
+- [x] 编码器是ABZ型，此应用中只接A+/B+信号，相位差=P/4,所以4个信号代表1个脉冲
+
+```
+#include "stm32f10x.h"                  // Device header
+
+void Encoder_Init(void)
+{
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
+	
+	GPIO_InitTypeDef GPIO_InitStructure;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	
+	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStruct;
+	TIM_TimeBaseInitStruct.TIM_ClockDivision = TIM_CKD_DIV1;
+	TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_Up;
+	TIM_TimeBaseInitStruct.TIM_Period = 65536 - 1;      //ARR
+	TIM_TimeBaseInitStruct.TIM_Prescaler = 1 - 1;    //PSC
+	TIM_TimeBaseInitStruct.TIM_RepetitionCounter = 0;
+	TIM_TimeBaseInit(TIM3,&TIM_TimeBaseInitStruct);
+	
+	TIM_ICInitTypeDef TIM_ICInitStructure;
+	TIM_ICStructInit(&TIM_ICInitStructure);
+	TIM_ICInitStructure.TIM_Channel = TIM_Channel_1;
+	TIM_ICInitStructure.TIM_ICFilter = 0xF;
+	TIM_ICInit(TIM3, &TIM_ICInitStructure);
+	TIM_ICInitStructure.TIM_Channel = TIM_Channel_2;
+	TIM_ICInitStructure.TIM_ICFilter = 0xF;
+	TIM_ICInit(TIM3, &TIM_ICInitStructure);	
+	
+	TIM_EncoderInterfaceConfig(TIM3, TIM_EncoderMode_TI12, TIM_ICPolarity_Rising, TIM_ICPolarity_Rising);
+
+	TIM_Cmd(TIM3, ENABLE);
+}
+
+int16_t Encoder_Get(void)
+{
+	int16_t Temp;
+	Temp = TIM_GetCounter(TIM3);
+ 	TIM_SetCounter(TIM3, 0);
+	return Temp;
+}
+```
 ### 2.5 串口通讯（参考江科协代码）
 - [x] 串口输出转速，连接上位机图形化显示 
 ```Serial_Printf("Rps: %.2f\n", Rps); //串口输出转速，换行打印```
@@ -223,7 +267,7 @@ if (Temp < 39) Speed++;
 - [ ] 开关电源12V（5V带不起来）
 - [ ] 步进电机PKP243MD15A-R2FL, 编码器分辨率400P/R，基本步距角0.9°. 接头Pin#：1248，分别对应GND/A+/B+/VCC（DC5V），从ST-Link直接取5V和GND），编码器输出AB相接在PA6和PA7两个GPIO口
 
-![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/f446d52d-bf39-4ad2-bb1f-805620771ffd)
+![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/3ed4a86a-a551-409f-afa9-8007267623a0)
 ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/8bf0b0a4-6273-4ea5-9191-296d6575488c)
 ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/370dd96f-9677-4c7b-b5ef-e6f2c3c48022)
 ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/f48e4e6a-3e98-4126-8cd8-86b325d3d6dd)
