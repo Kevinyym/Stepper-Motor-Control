@@ -227,7 +227,7 @@ if (Temp < 39) Speed++;
 ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/8bf0b0a4-6273-4ea5-9191-296d6575488c)
 ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/370dd96f-9677-4c7b-b5ef-e6f2c3c48022)
 ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/f48e4e6a-3e98-4126-8cd8-86b325d3d6dd)
-![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/df2eb117-ac03-457a-b58a-351279d90b28)
+![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/e031662d-e14f-4db1-8d05-492dda5c1812)
 ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/565eb096-2b27-4e59-a8e0-85043c7a0f56)
 ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/904a075d-63a5-4789-91b6-4eb49f1b498e)
 ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/0081eeea-2529-4660-a29b-c055695b40a0)
@@ -241,3 +241,4 @@ if (Temp < 39) Speed++;
 - [嵌入式STM32学习笔记（5）——定时器主从模式，精确输出PWM脉冲数量](https://blog.csdn.net/abcvincent/article/details/95250994?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-1-95250994-blog-96273988.235^v38^pc_relevant_sort&spm=1001.2101.3001.4242.2&utm_relevant_index=4)
 - [各种方案，精确输出可控脉冲个数，尽量可控周期或占空比（脉冲 dma](http://www.openedv.com/forum.php?mod=viewthread&tid=297375)
 - [STM32主从模式 精确脉冲数PWM （已实现）](https://blog.csdn.net/leonsust/article/details/96273988)
+- [正交编码 正交编码器 增量式编码器](https://blog.csdn.net/huangbinvip/article/details/123962511)
