@@ -246,13 +246,6 @@ int16_t Encoder_Get(void)
 - [x] 串口输出转速，连接上位机图形化显示 
 ```Serial_Printf("Rps: %.2f\n", Rps); //串口输出转速，换行打印```
 
-### 2.4 实现限位开关(home sensor)
-- [x] xxx
-```
-if (Temp > 41) Speed--;
-if (Temp < 39) Speed++;
-```
-
 ## 3 定时器表资源表：STM32F103C8T6定时器资源：TIM1,TIM2,TIM3,TIM4
 ```	
 	*功能*	  *定时器*	 *类型* 		*备注*
