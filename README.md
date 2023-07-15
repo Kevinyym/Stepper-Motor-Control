@@ -243,8 +243,11 @@ int16_t Encoder_Get(void)
 }
 ```
 ### 2.5 串口通讯（参考江科协代码）
-- [x] 串口输出转速，连接上位机图形化显示 
-```Serial_Printf("Rps: %.2f\n", Rps); //串口输出转速，换行打印```
+- [x] 串口输出转速，连接上位机图形化显示
+- [ ] 加速还需优化，考虑使用24V开关电源（电机额定24V，目前使用12v开关电源）
+- [ ] 
+```Serial_Printf("Speed:%f\n", Speed); //串口输出转速，换行打印```
+![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/f3de2852-ae23-4c99-9cbf-642e6e01744a)
 
 ## 3 定时器表资源表：STM32F103C8T6定时器资源：TIM1,TIM2,TIM3,TIM4
 ```	
