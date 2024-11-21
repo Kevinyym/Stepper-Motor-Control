@@ -266,6 +266,7 @@ int16_t Encoder_Get(void)
 ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/3ed4a86a-a551-409f-afa9-8007267623a0)
 ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/8bf0b0a4-6273-4ea5-9191-296d6575488c)
 ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/370dd96f-9677-4c7b-b5ef-e6f2c3c48022)
+### 注意：下图中的驱动器的pin脚是从正面看的，如果从pin脚一面看是反的，千万注意！！！⚠️
 ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/f48e4e6a-3e98-4126-8cd8-86b325d3d6dd)
 ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/e031662d-e14f-4db1-8d05-492dda5c1812)
 ![image](https://github.com/Kevinyym/Stepper-Motor-Control/assets/101639215/565eb096-2b27-4e59-a8e0-85043c7a0f56)
